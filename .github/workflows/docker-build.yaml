@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t lavanyathatha/lavanyathatha/k8s-demo:v1 .
+        run: docker build -t lavanyathatha/k8s-demo:v1 .
 
       - name: Push Docker image
         run: docker push lavanyathatha/k8s-demo:v1
