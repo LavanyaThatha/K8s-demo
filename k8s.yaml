@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-demo
+  namespace: k8s-demo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8s-demo
+  template:
+    metadata:
+      labels:
+        app: k8s-demo
+    spec:
+      containers:
+      - name: k8s-demo
+        image: lavanyathatha/k8s-demo:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_VERSION
+          value: "v1"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-demo-service
+  namespace: k8s-demo
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-demo
+  ports:
+  - port: 9090
+    targetPort: 8080
